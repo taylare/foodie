@@ -16,8 +16,8 @@ if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.
 } 
 
 // connect to the database
-$dbc = mysqli_connect($hostname, $username, $pw, $db);
-if (!$dbc) {
+$conn = mysqli_connect($hostname, $username, $pw, $db);
+if (!$conn) {
     die(mysqli_connect_error());
 }
 
