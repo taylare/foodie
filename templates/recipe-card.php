@@ -25,7 +25,7 @@
             $truncated = mb_strimwidth(strip_tags($recipe['instructions']), 0, 100, "...");
             echo nl2br(htmlspecialchars($truncated));
             ?>
-            <p><a href="view-recipe.php?id=<?= $recipe['id'] ?>">Read more</a></p>
+            <p><a style="color: orange;" href="view-recipe.php?id=<?= $recipe['id'] ?>">Read more</a></p>
         </p>
 </div>
 
