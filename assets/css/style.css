@@ -29,9 +29,10 @@
   --results-border: #b9d2f7;
 }
 
-body {
+body:not(.login) {
   background: linear-gradient(
-    200deg,
+    280deg,
+    rgb(255, 255, 167),
     rgb(255, 192, 241),
     rgb(255, 255, 167),
     rgb(255, 192, 241),
@@ -42,6 +43,20 @@ body {
   font-family: 'Segoe UI', sans-serif;
   color: var(--text);
 }
+
+body.login {
+   background: linear-gradient(
+    280deg,
+    rgb(255, 255, 167),
+    rgb(248, 255, 150),
+    rgb(255, 255, 167),
+    rgb(249, 255, 158),
+    rgb(255, 255, 167)
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
 
 .recipe-grid {
   display: flex;
@@ -54,7 +69,7 @@ body {
 /* 🌟 Recipe Cards: Shadowed, Cute Border, Grid-Friendly */
 .recipe-card {
   width: 280px; /* smaller width */
-  background-color: white;
+  background-color: white !important;
   border: 2px solid black;
   border-radius: 12px;
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
@@ -132,7 +147,7 @@ body {
 }
 
 
-h1, h2, h3 {
+h1, h2, h3, h6 {
   color: var(--pink-dark);
 }
 
@@ -155,7 +170,7 @@ h1, h2, h3 {
 
 /* Main Button */
 .btn-pink {
-  background-color: var(--blue);
+  background-color: var(--pink-hover);
   color: white;
   border-radius: 10px;
   border: none;
@@ -189,24 +204,24 @@ footer {
 
 /* Login Card */
 .login-card {
-  max-width: 400px;
-  background-color: var(--card-bg);
-  border: 2px dashed var(--card-border);
-  border-radius: 20px;
-  padding: 30px;
-  margin: 0 auto;
+    max-width: 400px;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.571) !important;
+    padding: 30px;
+    margin: 0 auto;
 }
 
 /* Login Inputs */
-input[type="email"],
-input[type="password"] {
-  background-color: var(--input-bg);
-  border: 2px solid var(--input-border);
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 16px;
-  margin-bottom: 12px;
-  width: 100%;
+input[type="email"], input[type="password"] {
+    background-color: white;
+    border: 2px solid #0000003d;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 12px;
+    width: 100%;
 }
 
 button.btn.btn-outline-danger {
@@ -219,4 +234,12 @@ button.btn.btn-outline-danger {
   border: 2px solid black;
   border-radius: 12px;
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.571) !important;
+}
+
+a.add-recipe-btn {
+    color: var(--dark-pink);
+}
+
+a.add-recipe-btn:hover {
+    color: var(--blue);
 }

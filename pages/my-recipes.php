@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <div class="d-flex align-items-center justify-content-between flex-wrap flex-md-nowrap mb-4" style="gap: 20px;">
   <h2 class="mb-0">
-    My Recipes | <a href="add-recipe.php">Add Your Own Recipe</a>
+    My Recipes | <a class="add-recipe-btn" href="add-recipe.php">Add Your Own Recipe</a>
   </h2>
   
   <form method="GET" class="mb-0" style="flex-shrink: 1;">

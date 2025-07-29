@@ -1,11 +1,14 @@
+<body class="login">
+
 <?php include '../includes/header.php'; ?>
-<h2 class="text-pink fw-bold mb-4 text-center">🍓 Login to Your Recipe Planner</h2>
+
 
 <div class="login-card card p-4 shadow-sm mx-auto">
+    <h6 class="text-pink fw-bold mb-4 text-center">Login 🍓</h6>
   <form method="POST" action="login.php">
     <input type="email" name="email" class="form-control" placeholder="📧 Email" required>
     <input type="password" name="password" class="form-control" placeholder="🔒 Password" required>
-    <button type="submit" class="btn btn-pink w-100 mt-2">✨ Login</button>
+    <button type="submit" class="btn btn-pink w-100 mt-2">Login✨</button>
   </form>
 </div>
 
@@ -22,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
-            header("Location: home.php");
+            header("Location: my-recipes.php");
             exit;
         } else {
             echo "<p class='text-danger mt-3 text-center'>❌ Incorrect password. Try again!</p>";
@@ -32,4 +35,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
-<?php include '../includes/footer.php'; ?>
+
+</body>

@@ -12,10 +12,9 @@
 
 <nav class="navbar navbar-expand-lg navbar-light">
   <div class="container">
-    <a class="navbar-brand fw-bold text-pink" href="home.php">🍰 Recipe Planner</a>
+    <a class="navbar-brand fw-bold text-pink" href="my-recipes.php">🍣 Meal Planner</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
 
         <?php if (isset($_SESSION['user_id'])): ?>
             <li class="nav-item"><a class="nav-link" href="my-recipes.php">My Recipes</a></li>
