@@ -208,3 +208,15 @@ input[type="password"] {
   margin-bottom: 12px;
   width: 100%;
 }
+
+button.btn.btn-outline-danger {
+    height: 40px;
+}
+
+.card.p-4.shadow.pastel-card {
+    margin-bottom: 5%;
+      background-color: white;
+  border: 2px solid black;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.571) !important;
+}

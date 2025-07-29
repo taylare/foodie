@@ -10,8 +10,14 @@
     </div>
 
     <div class="col-md-6">
-      <label for="ingredients" class="form-label fw-bold text-pink">Ingredients</label>
-      <textarea name="ingredients" id="ingredients" class="form-control pastel-input" rows="5" placeholder="List ingredients..." required></textarea>
+        <label class="form-label fw-bold text-pink">Ingredients</label>
+        <div id="ingredient-fields">
+            <div class="ingredient-group d-flex mb-2">
+                <input type="text" name="ingredients[]" class="form-control pastel-input me-2" placeholder="e.g. 2 eggs" required>
+                <button type="button" class="btn btn-outline-danger" onclick="removeIngredient(this)">✕</button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-pink btn-sm" onclick="addIngredient()">+ Add Another Ingredient</button>
     </div>
 
     <div class="col-md-6">
@@ -45,4 +51,36 @@
   </form>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<script>
+function addIngredient() {
+  const container = document.getElementById('ingredient-fields');
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'ingredient-group d-flex mb-2';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.name = 'ingredients[]';
+  input.className = 'form-control pastel-input me-2';
+  input.placeholder = 'e.g. 1 tsp vanilla';
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn btn-outline-danger';
+  removeBtn.textContent = '✕';
+  removeBtn.onclick = function () {
+    removeIngredient(removeBtn);
+  };
+
+  wrapper.appendChild(input);
+  wrapper.appendChild(removeBtn);
+  container.appendChild(wrapper);
+}
+
+function removeIngredient(button) {
+  const group = button.closest('.ingredient-group');
+  if (group) group.remove();
+}
+</script>
+
+

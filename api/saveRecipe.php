@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $title = $_POST['title'];
-$ingredients = $_POST['ingredients'];
+$ingredients = implode("\n", array_filter($_POST['ingredients']));
 $instructions = $_POST['instructions'];
 $category = $_POST['category'];
 $user_id = $_SESSION['user_id'];
