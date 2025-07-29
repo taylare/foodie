@@ -1,0 +1,48 @@
+Array
+(
+    [0] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => breakfast
+            [recipe_id] => 1
+        )
+
+    [1] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => lunch
+            [recipe_id] => 1
+        )
+
+    [2] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => dinner
+            [recipe_id] => 1
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => breakfast
+            [recipe_id] => 1
+        )
+
+    [1] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => lunch
+            [recipe_id] => 1
+        )
+
+    [2] => Array
+        (
+            [date] => 2025-07-28
+            [meal_type] => dinner
+            [recipe_id] => 1
+        )
+
+)

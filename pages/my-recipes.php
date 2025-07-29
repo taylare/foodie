@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 ?>
-<h2>My Recipes</h2>
+<h2>My Recipes | <a href="add-recipe.php">Add Your Own Recipe</a></h2>
 <?php
 include '../includes/db.php';
 $user_id = $_SESSION['user_id'];

@@ -1,82 +1,139 @@
+:root {
+  /* Base Colors */
+  --bg: #fefcfb;
+  --text: #4b4b4b;
+
+  /* Main: Cornflower Blue Pastels */
+  --blue: #a3c4f3;
+  --blue-dark: #7da0dd;
+  --blue-light: #d6e3fa;
+
+  /* Pastel Accents */
+  --pink: #fbd3e9;
+  --pink-dark: #f3acc8;
+  --pink-light: #fde6f2;
+  --pink-hover: #f2b8d8;
+
+  --lilac: #e5d4f6;
+  --yellow: #fff5c2;
+
+  /* UI Element Colors */
+  --nav-bg: var(--blue-light);
+  --input-bg: #f6f9ff;
+  --input-border: #cfdaf0;
+  --card-bg: #f6faff;
+  --card-border: #cfe0f8;
+  --card-shadow: rgba(163, 196, 243, 0.2);
+  --results-bg: #f5f9ff;
+  --results-border: #b9d2f7;
+}
+
 body {
-    background-color: #fff8f0;
-    font-family: 'Segoe UI', sans-serif;
-    color: #4b4b4b;
+  background-color: var(--bg);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
 }
 
 .navbar {
-    background-color: #ffe0ec !important;
+  background-color: var(--nav-bg) !important;
 }
 
 .navbar a {
-    color: #ff69b4 !important;
-    font-weight: 600;
+  color: var(--blue-dark) !important;
+  font-weight: 600;
 }
 
 .navbar a:hover {
-    color: #d94f91 !important;
+  color: var(--blue) !important;
 }
 
 .container {
-    padding-top: 30px;
-    padding-bottom: 60px;
+  padding-top: 30px;
+  padding-bottom: 60px;
 }
 
 h1, h2, h3 {
-    color: #ff69b4;
+  color: var(--blue-dark);
 }
 
+/* Form Fields */
 .form-control,
 .form-select,
 textarea {
-    background-color: #fff0f6;
-    border: 2px solid #ffd6e5;
-    border-radius: 10px;
-    font-size: 16px;
-    margin-bottom: 15px;
+  background-color: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: 10px;
+  font-size: 16px;
+  margin-bottom: 15px;
 }
 
+/* Main Button */
 .btn-pink {
-    background-color: #ffaad4;
-    color: white;
-    border-radius: 10px;
-    border: none;
-    padding: 10px 20px;
+  background-color: var(--blue);
+  color: white;
+  border-radius: 10px;
+  border: none;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
 }
 
 .btn-pink:hover {
-    background-color: #f48fb1;
-    color: white;
+  background-color: var(--blue-dark);
+  color: white;
 }
 
+/* Recipe Cards */
 .recipe-card {
-    border: 2px solid #ffd6e5;
-    background-color: #fff0f6;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(255, 182, 193, 0.2);
+  border: 2px solid var(--card-border);
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px var(--card-shadow);
 }
 
 .recipe-card img {
-    width: 100%;
-    border-radius: 10px;
-    margin-bottom: 10px;
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
+/* Footer */
 footer {
-    background-color: #ffe0ec;
-    color: #4b4b4b;
-    text-align: center;
-    padding: 15px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    font-size: 14px;
+  background-color: var(--nav-bg);
+  color: var(--text);
+  text-align: center;
+  padding: 15px;
+  bottom: 0;
+  width: 100%;
+  font-size: 14px;
 }
 
+/* Search Results */
 #results .card {
-    background-color: #fff5fa;
-    border: 1px dashed #ffc1d9;
-    border-radius: 10px;
+  background-color: var(--results-bg);
+  border: 1px dashed var(--results-border);
+  border-radius: 10px;
+}
+
+/* Login Card */
+.login-card {
+  max-width: 400px;
+  background-color: var(--card-bg);
+  border: 2px dashed var(--card-border);
+  border-radius: 20px;
+  padding: 30px;
+  margin: 0 auto;
+}
+
+/* Login Inputs */
+input[type="email"],
+input[type="password"] {
+  background-color: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  width: 100%;
 }

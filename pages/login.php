@@ -1,10 +1,14 @@
 <?php include '../includes/header.php'; ?>
-<h2>Login</h2>
-<form method="POST" action="login.php">
-    <input type="email" name="email" placeholder="Email" required><br>
-    <input type="password" name="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-</form>
+<h2 class="text-pink fw-bold mb-4 text-center">🍓 Login to Your Recipe Planner</h2>
+
+<div class="login-card card p-4 shadow-sm mx-auto">
+  <form method="POST" action="login.php">
+    <input type="email" name="email" class="form-control" placeholder="📧 Email" required>
+    <input type="password" name="password" class="form-control" placeholder="🔒 Password" required>
+    <button type="submit" class="btn btn-pink w-100 mt-2">✨ Login</button>
+  </form>
+</div>
+
 <?php
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     include '../includes/db.php';
@@ -21,10 +25,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             header("Location: home.php");
             exit;
         } else {
-            echo "<p>Invalid credentials.</p>";
+            echo "<p class='text-danger mt-3 text-center'>❌ Incorrect password. Try again!</p>";
         }
     } else {
-        echo "<p>User not found.</p>";
+        echo "<p class='text-danger mt-3 text-center'>😕 No account found with that email.</p>";
     }
 }
 ?>
