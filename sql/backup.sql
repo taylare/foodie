@@ -30,3 +30,10 @@ CREATE TABLE meal_plan (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
 );
+
+CREATE TABLE recipe_ingredients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT,
+    ingredient VARCHAR(255),
+    quantity VARCHAR(50)
+);
