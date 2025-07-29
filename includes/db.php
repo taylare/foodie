@@ -21,5 +21,7 @@ if (!$conn) {
     die(mysqli_connect_error());
 }
 
+$spoonacularApiKey = '8f88d2bd5ab6413ba6177781765f7576';
+
 
 ?>
