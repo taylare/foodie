@@ -1,6 +1,19 @@
 <div class="recipe-card">
-        <img src="<?= $recipe['image_url'] ?>" alt="<?= htmlspecialchars($recipe['title']) ?>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px;">
-        <h3><?= htmlspecialchars($recipe['title']) ?></h3>
+        <img 
+            src="<?= $recipe['image_url'] ?>" 
+            alt="<?= htmlspecialchars($recipe['title']) ?>" 
+            style="
+                width: 100%; 
+                max-height: 200px; 
+                object-fit: contain; 
+                border-radius: 10px; 
+                margin-bottom: 10px; 
+                display: block; 
+                margin-left: auto; 
+                margin-right: auto;
+            "
+            >
+
         <p><strong>Ingredients:</strong></p>
         <ul>
         <?php foreach (explode("\n", $recipe['ingredients']) as $ingredient): ?>

@@ -1,7 +1,7 @@
 <?php include '../includes/header.php'; ?>
-<h2 class="text-pink mb-4 text-center">🍓 Add Your Own Recipe</h2>
 
 <div class="card p-4 shadow pastel-card">
+    <h2 class="text-pink mb-4 text-center" style="text-decoration: underline; color: black !important;">Add Your Own Recipe</h2>
   <form method="POST" action="../api/saveRecipe.php" enctype="multipart/form-data" class="row g-3">
 
     <div class="col-12">
