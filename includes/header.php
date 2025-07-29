@@ -13,7 +13,9 @@
 
 <nav class="navbar navbar-expand-lg navbar-light">
   <div class="container">
-    <a class="navbar-brand fw-bold text-pink" href="my-recipes.php">🍣 Meal Planner</a>
+   <a class="navbar-brand fw-bold text-pink" href="my-recipes.php">
+    🍣 <?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) . "'s Meal Planner" : 'Meal Planner' ?>
+  </a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
 

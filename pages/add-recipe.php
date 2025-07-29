@@ -54,6 +54,12 @@
       </select>
     </div>
 
+    <div class="col-md-6">
+        <label for="servings" class="form-label fw-bold text-pink">Servings</label>
+        <input type="number" name="servings" id="servings" class="form-control pastel-input" min="1" placeholder="e.g., 4" required>
+    </div>
+
+
     <div class="col-12 text-end">
       <button type="submit" class="btn btn-pink btn-lg mt-3">Save Recipe</button>
     </div>

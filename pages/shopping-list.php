@@ -8,98 +8,163 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-
-// Get this week's date range (Monday to Sunday)
 $today = new DateTime();
 $monday = (clone $today)->modify('monday this week')->format('Y-m-d');
 $sunday = (clone $today)->modify('sunday this week')->format('Y-m-d');
 
-// Step 1: Get all recipe IDs in the user's meal plan this week
+// Get meal plan for the week
 $stmt = $conn->prepare("
-    SELECT DISTINCT recipe_id 
-    FROM meal_plan 
-    WHERE user_id = ? 
-    AND date BETWEEN ? AND ?
-    AND recipe_id IS NOT NULL
+    SELECT mp.date, mp.meal_type, r.id as recipe_id, r.title, r.ingredients
+    FROM meal_plan mp
+    JOIN recipes r ON mp.recipe_id = r.id
+    WHERE mp.user_id = ? AND mp.date BETWEEN ? AND ?
+    ORDER BY mp.date, FIELD(mp.meal_type, 'breakfast', 'lunch', 'dinner')
 ");
 $stmt->bind_param("iss", $user_id, $monday, $sunday);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$recipeIds = [];
+$shoppingData = []; // [date][meal_type][] = ['title' => ..., 'ingredients' => ..., 'id' => ...]
 while ($row = $result->fetch_assoc()) {
-    $recipeIds[] = $row['recipe_id'];
-}
-
-$ingredientsList = [];
-
-if (!empty($recipeIds)) {
-    // Step 2: Fetch recipes and extract ingredients from TEXT field
-    $placeholders = implode(',', array_fill(0, count($recipeIds), '?'));
-    $types = str_repeat('i', count($recipeIds));
-    $sql = "SELECT ingredients FROM recipes WHERE id IN ($placeholders)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($types, ...$recipeIds);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $raw = $row['ingredients'];
-
-        // Try splitting by newline or comma
-        $lines = preg_split("/\r\n|\n|\r|,/", $raw);
-
-        foreach ($lines as $item) {
-            $item = trim($item);
-            if ($item !== '') {
-                $normalized = strtolower($item);
-                if (isset($ingredientsList[$normalized])) {
-                    $ingredientsList[$normalized]++;
-                } else {
-                    $ingredientsList[$normalized] = 1;
-                }
-            }
-        }
-    }
+    $date = $row['date'];
+    $meal = $row['meal_type'];
+    $shoppingData[$date][$meal][] = [
+        'title' => $row['title'],
+        'ingredients' => preg_split("/\r\n|\n|\r|,/", $row['ingredients']),
+        'id' => $row['recipe_id']
+    ];
 }
 ?>
 
 <h2>Shopping List</h2>
 
-<?php if (empty($recipeIds)): ?>
-    <p>No meals planned for this week yet. Your shopping list will appear here once you plan some meals!</p>
+<?php if (empty($shoppingData)): ?>
+    <p>You have no meals planned this week.</p>
 <?php else: ?>
-    <p>Based on your current meal plan for this week, here’s a combined list of ingredients:</p>
-    <ul id="shopping-list">
-        <?php foreach ($ingredientsList as $ingredient => $count): ?>
-            <li class="shopping-item" style="cursor: pointer;">
-                <?php echo htmlspecialchars(ucfirst($ingredient)); ?>
-                <?php if ($count > 1): ?>
-                    (x<?php echo $count; ?>)
-                <?php endif; ?>
-            </li>
+    <p>Based on your meal plan, here's your shopping list organised by day, meal, and recipe:</p>
+    <div class="shopping-wrapper">
+        <?php foreach ($shoppingData as $date => $meals): ?>
+            <div class="shopping-card">
+                <h3><?= date('l, M j', strtotime($date)) ?></h3>
+                <div class="meal-row">
+                    <?php foreach (['breakfast', 'lunch', 'dinner'] as $mealType): ?>
+                        <div class="meal-column">
+                            <h4><?= ucfirst($mealType) ?></h4>
+                            <?php if (!empty($meals[$mealType])): ?>
+                                <?php foreach ($meals[$mealType] as $recipe): ?>
+                                    <div class="recipe-block">
+                                        <a href="view-recipe.php?id=<?= $recipe['id'] ?>" class="recipe-title">
+                                            <?= htmlspecialchars($recipe['title']) ?>
+                                        </a>
+                                        <ul>
+                                            <?php foreach ($recipe['ingredients'] as $ingredient): 
+                                                $ingredient = trim($ingredient);
+                                                if ($ingredient === '') continue;
+                                                $key = md5($date . $mealType . $recipe['id'] . $ingredient); ?>
+                                                <li class="shopping-item" data-key="<?= $key ?>">
+                                                    <?= htmlspecialchars($ingredient) ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="no-recipe">No recipe</p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
         <?php endforeach; ?>
-    </ul>
+    </div>
 <?php endif; ?>
 
-<!-- Tap-to-cross-out script -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const items = document.querySelectorAll("#shopping-list .shopping-item");
-    items.forEach(item => {
-        item.addEventListener("click", function () {
-            this.classList.toggle("crossed-off");
-        });
-    });
-});
-</script>
-
-<!-- Crossed-out style -->
 <style>
+.shopping-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.shopping-card {
+    background: #fff5f8;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 1rem 1.5rem;
+    min-width: 280px;
+    max-width: 100%;
+    flex: 1 1 100%;
+}
+
+.meal-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.meal-column {
+    flex: 1;
+    min-width: 200px;
+    background: #fff;
+    padding: 0.8rem;
+    border-radius: 0.75rem;
+    box-shadow: inset 0 0 0 1px #ffe1ec;
+    background-color: #fffafc;
+}
+
+.recipe-block {
+    margin-bottom: 1rem;
+}
+
+.recipe-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    color: #d43f8d;
+    text-decoration: none;
+}
+
+.recipe-title:hover {
+    text-decoration: underline;
+}
+
+.shopping-item {
+    cursor: pointer;
+}
+
 .crossed-off {
     text-decoration: line-through;
     opacity: 0.6;
 }
+
+.no-recipe {
+    font-style: italic;
+    color: #999;
+}
 </style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.shopping-item').forEach(item => {
+        const key = item.getAttribute('data-key');
+        if (localStorage.getItem(key) === 'crossed') {
+            item.classList.add('crossed-off');
+        }
+
+        item.addEventListener('click', () => {
+            item.classList.toggle('crossed-off');
+            if (item.classList.contains('crossed-off')) {
+                localStorage.setItem(key, 'crossed');
+            } else {
+                localStorage.removeItem(key);
+            }
+        });
+    });
+});
+</script>
 
 <?php include '../includes/footer.php'; ?>

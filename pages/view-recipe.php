@@ -39,6 +39,8 @@ $recipe = $result->fetch_assoc();
       <p><strong>Instructions:</strong></p>
       <p class="text-start"><?= nl2br(htmlspecialchars($recipe['instructions'])) ?></p>
 
+      <p><strong>Serves: <?= $recipe['servings'] ?> people.</strong></p>
+
       <a href="javascript:history.back()" class="btn btn-pink mt-3">🔙 Back</a>
   </div>
 </main>
