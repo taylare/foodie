@@ -512,8 +512,10 @@ only screen
       font-size: 16pt;
     }
 
-    form.search-bar {
-      margin-left: 20%;
+    .search-bar-container {
+        display: flex !important;
+        justify-content: center !important;
+    
     }
 
     .navbar-toggler {
@@ -521,7 +523,7 @@ only screen
       line-height: 1;
       background-color: #cf1b1b00;
       border: 2px solid var(--pink-dark);
-      border-radius: var(--bs-navbar-toggler-border-radius);
+      border-radius: 50px;
       transition: var(--bs-navbar-toggler-transition);
       padding: 1%
     }
@@ -536,12 +538,44 @@ only screen
     }
 
     .navbar-toggler:focus {
-    text-decoration: none;
-    outline: 0;
-    box-shadow: 0 0 0 0;
-    border-color: var(--orange);
+      text-decoration: none;
+      outline: 0;
+      box-shadow: 0 0 0 0;
+      border-color: var(--orange);
+      background-color: var(--orange);
+    }
+
+    .navbar-toggler:active {
+      text-decoration: none;
+      outline: 0;
+      box-shadow: 0 0 0 0;
+      border-color: var(--orange);
+      background-color: var(--orange);
+    }
+
+  .modal-footer {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
+  .btn-reset {
+    height: 20px;
+  }
 
+  .btn-save {
+    height: 40px;
+  }
 
+  .modal-mealplanner .modal-footer {
+    border-top: none;
+    padding: 0rem 0rem 0rem 0rem;
+  }
+
+  .modal-mealplanner .modal-body {
+    padding: 1rem 2rem;
+    max-height: 55vh;
+    overflow-y: auto;
+}
 }

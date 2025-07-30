@@ -12,11 +12,12 @@ $instructions = $_POST['instructions'];
 $category = $_POST['category'];
 $user_id = $_SESSION['user_id'];
 $image_url = $_POST['image_url'] ?? '';
+$servings = $_POST['servings'];
 
 // 1. Handle uploaded file
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $upload_dir = '../assets/images/uploads/';
-    if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
     $tmp_name = $_FILES['image']['tmp_name'];
     $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -32,8 +33,8 @@ if (empty($image_url)) {
     $image_url = '../assets/images/empty-img.png';
 }
 
-$stmt = $conn->prepare("INSERT INTO recipes (user_id, title, ingredients, instructions, image_url, category) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("isssss", $user_id, $title, $ingredients, $instructions, $image_url, $category);
+$stmt = $conn->prepare("INSERT INTO recipes (user_id, title, ingredients, instructions, image_url, category, servings) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("isssssi", $user_id, $title, $ingredients, $instructions, $image_url, $category, $servings);
 $stmt->execute();
 
 header("Location: ../pages/my-recipes.php");

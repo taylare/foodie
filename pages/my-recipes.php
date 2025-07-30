@@ -11,12 +11,14 @@ if (!isset($_SESSION['user_id'])) {
   <h2 class="mb-0">
     My Recipes | <a class="add-recipe-btn" href="add-recipe.php">Add Your Own Recipe</a>
   </h2>
-  
+   <div class="search-bar-container"></div>
   <form method="GET" class="search-bar" class="mb-0" style="flex-shrink: 1;">
-    <input type="text" name="search" class="form-control" placeholder="Search your recipes..."
-      value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
-      style="max-width: 250px;">
-  </form>
+   
+        <input type="text" name="search" class="form-control" placeholder="Search your recipes..."
+        value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
+        style="max-width: 250px;">
+   
+  </form> </div>
 </div>
 
 <?php

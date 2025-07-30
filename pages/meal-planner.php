@@ -99,9 +99,9 @@ $monday = (clone $today)->modify('monday this week');
           <?php endforeach; ?>
         </div>
 
-        <div class="modal-footer">
-          <button type="submit" name="save_meal_plan" value="1" class="btn btn-pink">Save Meal Plan</button>
-          <button type="submit" name="reset_meal_plan" value="1" class="btn btn-outline-danger">Reset Meal Plan</button>
+        <div class="modal-footer display-flex">
+          <button type="submit" name="save_meal_plan" value="1" class="btn btn-pink btn-save">Save</button>
+          <button type="submit" name="reset_meal_plan" value="1" class="btn btn-outline-danger btn-reset">Reset</button>
         </div>
       </form>
 

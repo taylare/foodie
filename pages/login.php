@@ -5,7 +5,7 @@
 <div class="login-card card p-4 shadow-sm mx-auto">
   <h6 class="text-pink fw-bold mb-4 text-center">Login 🍓</h6>
   <form method="POST" action="login.php">
-    <input type="text" name="username" class="form-control" placeholder="👤 Username or Email" required>
+    <input type="text" name="username" class="form-control" placeholder="👤 Username" required>
     <input type="password" name="password" class="form-control" placeholder="🔒 Password" required>
     <button type="submit" class="btn btn-pink w-100 mt-2">Login✨</button>
   </form>
