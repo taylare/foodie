@@ -1,18 +1,10 @@
 <div class="recipe-card">
-        <img 
-            src="<?= $recipe['image_url'] ?>" 
-            alt="<?= htmlspecialchars($recipe['title']) ?>" 
-            style="
-                width: 100%; 
-                max-height: 200px; 
-                object-fit: contain; 
-                border-radius: 10px; 
-                margin-bottom: 10px; 
-                display: block; 
-                margin-left: auto; 
-                margin-right: auto;
-            "
-            >
+    <?php if (!empty($recipe['image_url'])): ?>
+        <img src="<?= htmlspecialchars($recipe['image_url']) ?>" alt="<?= htmlspecialchars($recipe['title']) ?>" class="recipe-img">
+        <?php else: ?>
+        <img src="../assets/images/empty-img.png" alt="No image" class="recipe-img">
+    <?php endif; ?>
+
         <h3><?= htmlspecialchars($recipe['title']) ?></h3>
 
             <p><a style="color: orange;" href="view-recipe.php?id=<?= $recipe['id'] ?>">View Recipe</a></p>

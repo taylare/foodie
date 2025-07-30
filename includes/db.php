@@ -1,27 +1,31 @@
 <?php
+// Spoonacular API Key
+$spoonacularApiKey = '8f88d2bd5ab6413ba6177781765f7576';
 
-// deepBlue server settings (default)
-$hostname = '127.0.0.1';
-$username = 'ICS199Grp02_Dev';
-$pw = '567890_Dev';
-$db = 'ICS199Grp02_DevDB';
-
-
-// override if running locally
+// Check if running locally
 if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') {
     $hostname = 'localhost';
     $username = 'root';
     $pw = '';
     $db = 'foodie';
-} 
-
-// connect to the database
-$conn = mysqli_connect($hostname, $username, $pw, $db);
-if (!$conn) {
-    die(mysqli_connect_error());
+    $port = 3306; // default MySQL port
+} else {
+    // Railway / deepblue server settings
+    $hostname = "shuttle.proxy.rlwy.net";
+    $username = "root";
+    $pw = "LEPcpmcWFsaDwdBSRZpRfFAuUBgcGuUU";
+    $db = "foodie";
+    $port = 25777; // Railway custom port
 }
 
-$spoonacularApiKey = '8f88d2bd5ab6413ba6177781765f7576';
+// Connect to the database
+$conn = mysqli_connect($hostname, $username, $pw, $db, $port);
 
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
+// Optional: Uncomment to test connection
+// echo "Database connection successful!";
 ?>

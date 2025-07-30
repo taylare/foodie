@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
     My Recipes | <a class="add-recipe-btn" href="add-recipe.php">Add Your Own Recipe</a>
   </h2>
   
-  <form method="GET" class="mb-0" style="flex-shrink: 1;">
+  <form method="GET" class="search-bar" class="mb-0" style="flex-shrink: 1;">
     <input type="text" name="search" class="form-control" placeholder="Search your recipes..."
       value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
       style="max-width: 250px;">
@@ -49,4 +49,5 @@ if ($result->num_rows > 0) {
 } else {
     echo '<p>No recipes found.</p>';
 }
-?>
+
+include "../includes/footer.php" ?>

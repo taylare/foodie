@@ -9,7 +9,7 @@
       <label for="recipe_url" class="form-label fw-bold text-pink">(Optional) Paste Online Recipe URL</label>
       <div class="d-flex">
         <input type="text" id="recipe_url" class="form-control pastel-input me-2" placeholder="https://example.com/recipe">
-        <button type="button" class="btn btn-outline-pink" onclick="fetchRecipe()">Submit</button>
+        <button type="button" class="btn btn-submit" onclick="fetchRecipe()">Submit</button>
       </div>
     </div>
 
@@ -142,3 +142,4 @@ function fetchRecipe() {
     });
 }
 </script>
+<?php include "../includes/footer.php" ?>

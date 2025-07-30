@@ -81,6 +81,15 @@ body.meal-planner {
   gap: 20px;
 }
 
+.recipe-img {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 1rem;
+    border: 3px solid #ffcef3;
+}
 
 /* 🌟 Recipe Cards: Shadowed, Cute Border, Grid-Friendly */
 .recipe-card {
@@ -101,14 +110,7 @@ body.meal-planner {
   transform: translateY(-5px);
 }
 
-/* 📸 Image inside recipe card */
-.recipe-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
+
 
 /* 📝 Titles and Text */
 .recipe-card h3 {
@@ -476,3 +478,70 @@ select.meal-select option {
   text-decoration: underline;
 }
 
+button.btn.btn-submit {
+    border: 2px solid #c5ff86;
+    border-radius: 60px;
+    background-color: #c5ff86;
+    font-size: 14pt;
+    height: 0%;
+}
+
+button.btn.btn-submit:hover {
+  background-color: rgb(183, 255, 144);
+} 
+
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 430px) 
+  and (-webkit-min-device-pixel-ratio: 2) 
+  and (orientation: portrait),
+only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 430px) 
+  and (-webkit-min-device-pixel-ratio: 2) 
+  and (orientation: landscape) {
+    
+    nav.navbar.navbar-expand-lg {
+      margin: 5px;
+      margin-bottom: 7%;
+      margin-top: 3%;
+    }
+
+    a.add-recipe-btn {
+      color: var(--dark-pink);
+      font-size: 16pt;
+    }
+
+    form.search-bar {
+      margin-left: 20%;
+    }
+
+    .navbar-toggler {
+      font-size: var(--bs-navbar-toggler-font-size);
+      line-height: 1;
+      background-color: #cf1b1b00;
+      border: 2px solid var(--pink-dark);
+      border-radius: var(--bs-navbar-toggler-border-radius);
+      transition: var(--bs-navbar-toggler-transition);
+      padding: 1%
+    }
+
+    .navbar-toggler-icon {
+      background-image: url('../images/hamburger.png'); 
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .navbar-toggler:focus {
+    text-decoration: none;
+    outline: 0;
+    box-shadow: 0 0 0 0;
+    border-color: var(--orange);
+  }
+
+
+
+}

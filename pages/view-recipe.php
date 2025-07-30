@@ -24,7 +24,11 @@ $recipe = $result->fetch_assoc();
 
 <main class="d-flex justify-content-center align-items-start my-5">
   <div class="full-recipe-card recipe-card">
-      <img src="<?= htmlspecialchars($recipe['image_url']) ?>" alt="<?= htmlspecialchars($recipe['title']) ?>" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;">
+         <?php if (!empty($recipe['image_url'])): ?>
+        <img src="<?= htmlspecialchars($recipe['image_url']) ?>" alt="<?= htmlspecialchars($recipe['title']) ?>" class="recipe-img">
+        <?php else: ?>
+        <img src="../assets/images/empty-img.png" alt="No image" class="recipe-img">
+    <?php endif; ?>
 
       
       <h2 style="text-decoration: underline;"><?= htmlspecialchars($recipe['title']) ?></h2>
@@ -44,4 +48,6 @@ $recipe = $result->fetch_assoc();
       <a href="javascript:history.back()" class="btn btn-pink mt-3">🔙 Back</a>
   </div>
 </main>
+
+<?php include "../includes/footer.php" ?>
 

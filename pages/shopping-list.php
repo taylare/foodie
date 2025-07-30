@@ -89,12 +89,14 @@ while ($row = $result->fetch_assoc()) {
 
 .shopping-card {
     background: #fff5f8;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     padding: 1rem 1.5rem;
     min-width: 280px;
     max-width: 100%;
     flex: 1 1 100%;
+    border: 2px solid black;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+    margin-bottom: 2%;
 }
 
 .meal-row {
