@@ -7,7 +7,7 @@
 
         <h3><?= htmlspecialchars($recipe['title']) ?></h3>
 
-            <p><a style="color: orange;" href="view-recipe.php?id=<?= $recipe['id'] ?>">View Recipe</a></p>
+            <p><a class="view-recipe-link" href="view-recipe.php?id=<?= $recipe['id'] ?>">View Recipe</a></p>
         </p>
 </div>
 

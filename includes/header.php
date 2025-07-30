@@ -1,4 +1,4 @@
-<?php session_start();  ?>
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg ">
+<nav class="navbar navbar-expand-lg">
   <div class="container">
     <a class="navbar-brand fw-bold text-pink" href="my-recipes.php">
       🍥<?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) . "'s Meal Planner" : 'Meal Planner' ?>
@@ -36,9 +36,35 @@
           <li class="nav-item"><a class="nav-link" href="register.php">Register</a></li>
         <?php endif; ?>
       </ul>
+
+      <!-- 🌙 Theme Toggle Button -->
+      <button id="themeToggle" class="btn btn-sm ms-3" aria-label="Toggle Dark Mode" style="font-size: 1.4rem;">
+        🌙
+      </button>
     </div>
   </div>
 </nav>
 
-
 <main class="container">
+
+<!-- 🌙 Theme toggle script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.getElementById('themeToggle');
+    const root = document.documentElement;
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    root.setAttribute('data-theme', savedTheme);
+    toggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    // Toggle and save preference
+    toggleBtn.addEventListener('click', () => {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      toggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+  });
+</script>

@@ -13,6 +13,7 @@
   --pink-dark: #f694bb;
   --pink-light: #fde6f2;
   --pink-hover: #f2b8d8;
+  --dark-pink: #f694bb;
 
   --lilac: #e5d4f6;
   --yellow: #fff5c2;
@@ -94,7 +95,7 @@ body.meal-planner {
 /* 🌟 Recipe Cards: Shadowed, Cute Border, Grid-Friendly */
 .recipe-card {
   width: 280px; /* smaller width */
-  background-color: white !important;
+  background-color: white;
   border: 2px solid black;
   border-radius: 12px;
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
@@ -577,5 +578,181 @@ only screen
     padding: 1rem 2rem;
     max-height: 55vh;
     overflow-y: auto;
+  }
 }
+
+/* ===================== 🌙 DARK MODE ===================== */
+[data-theme="dark"] {
+  --bg: #121b25;
+  --text: #e0f7ff;
+
+  /* Main: Deep Blue & Green Pastels */
+  --blue: #6ca0d4;
+  --blue-dark: #476f9e;
+  --blue-light: #8cbbe4;
+
+  --green: #9cd8c6;
+  --green-dark: #5da089;
+  --green-light: #c3f0e2;
+
+  /* Accent */
+  --purple: #5c4d91;
+  --purple-light: #8971c5;
+  --purple-dark: #3b3265;
+
+  --nav-bg: #1a2533;
+  --input-bg: #1e2a3a;
+  --input-border: #334a65;
+  --card-bg: #1b2738;
+  --card-border: #3d4d65;
+  --card-shadow: rgba(0, 0, 0, 0.5);
+  --results-bg: #1d2f42;
+  --results-border: #4c7aa9;
+}
+
+/* Dark body backgrounds */
+[data-theme="dark"] body {
+  background: linear-gradient(280deg, #1a2533, #2d394c, #1a2533);
+  color: var(--text);
+}
+
+/* Dark mode navbar */
+[data-theme="dark"] .navbar {
+  background: rgba(20, 29, 40, 0.7);
+  border-color: #3c4d5c;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Navbar links */
+[data-theme="dark"] .navbar a {
+  color: var(--green-light);
+}
+
+[data-theme="dark"] .navbar a:hover {
+  color: var(--blue);
+}
+
+/* Cards */
+[data-theme="dark"] .recipe-card,
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .card.p-4.shadow.pastel-card,
+[data-theme="dark"] .full-recipe-card,
+[data-theme="dark"] .meal-planner-container,
+[data-theme="dark"] .saved-plan {
+  background-color:  #0c1521;
+  border-color: var(--card-border);
+  box-shadow: 4px 4px 0px var(--card-shadow);
+  color: var(--text);
+}
+
+/* Form fields */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"] {
+  background-color: rgb(197, 208, 247);
+  border: 2px solid var(--input-border);
+  color: var(--blue-dark);
+}
+
+[data-theme="dark"] .form-control:focus {
+  border-color: var(--green-light);
+  box-shadow: 0 0 0 0.1rem var(--green);
+}
+
+/* Buttons */
+[data-theme="dark"] .btn-pink {
+  background-color: var(--purple-light);
+  color: #fff;
+}
+
+[data-theme="dark"] .btn-pink:hover {
+  background-color: var(--purple);
+}
+
+[data-theme="dark"] button.btn.btn-outline-pink.btn-sm {
+ color: var(--purple-light);
+}
+
+
+/* Footer */
+[data-theme="dark"] footer {
+  background-color: var(--nav-bg);
+  color: var(--text);
+}
+
+/* Meal select dropdown */
+[data-theme="dark"] .meal-select,
+[data-theme="dark"] select.meal-select option {
+  background-color: #25394e;
+  border-color: var(--blue-dark);
+  color: var(--text);
+}
+
+/* Links */
+[data-theme="dark"] .link-pink {
+  color: var(--blue-dark);
+}
+
+[data-theme="dark"] h1, h2, h3, h6, .recipe-card h3 { color: var(--green-light)}
+
+[data-theme="dark"] h2.text-pink.mb-4.text-center { color: var(--green-light) !important;}
+
+[data-theme="dark"] .recipe-img {border: none;}
+
+[data-theme="dark"] .view-recipe-link {
+  color: purple;
+}
+
+.view-recipe-link {
+  color: orange;
+}
+
+[data-theme="dark"] .shopping-card {
+    background: #363b56;
+}
+
+[data-theme="dark"] .meal-column {
+    box-shadow: inset 0 0 0 1px #000;
+    background-color: #1a1b29;
+}
+
+[data-theme="dark"]  .recipe-title {
+    color: var(--purple-light);
+}
+
+[data-theme="dark"] .modal-content {
+    color: var(--green-light);
+    background-color: #6c757d;
+}
+
+[data-theme="dark"] .meal-day {
+  color: var(--green);
+}
+
+[data-theme="dark"] .modal-mealplanner .modal-title {
+  color: var(--green-light);
+}
+
+[data-theme="dark"] button.btn.btn-outline-danger.btn-reset {
+  background-color: rgb(155, 37, 37);
+  border-color: rgb(155, 37, 37);
+  color: black;
+}
+ 
+
+[data-theme="dark"] .link-pink:hover {
+  color: var(--green);
+}
+
+#themeToggle {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+#themeToggle:hover {
+  transform: rotate(20deg);
 }
