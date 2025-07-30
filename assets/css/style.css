@@ -746,6 +746,12 @@ only screen
   color: var(--green);
 }
 
+  [data-theme="dark"]  .navbar-toggler {
+      border: 2px solid var(--purple-light);
+      background-color: var(--green);
+      border-radius: 50px;
+    }
+
 #themeToggle {
   background-color: transparent;
   border: none;
