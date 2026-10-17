@@ -2,7 +2,7 @@ import * as store from '../store.js';
 import { html, on, toast, confirmSheet, downloadFile, sheet } from '../ui.js';
 import { applyTheme, install } from '../platform.js';
 
-export const APP_VERSION = '2.1.0';
+export const APP_VERSION = '2.1.1';
 
 export default function settings(el) {
   const draw = async () => {

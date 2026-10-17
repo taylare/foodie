@@ -35,7 +35,7 @@ export default function editor(el, [id], query) {
         <span class="photo-hint">📷 ${image ? 'Change photo' : 'Add a photo'}</span>
       </label>
       <div class="row gap-s">
-        <input class="input grow" type="url" name="imageUrl" placeholder="…or paste an image link" value="${/^https?:/.test(image) ? image : ''}" />
+        <input class="input grow" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" name="imageUrl" placeholder="…or paste an image link" value="${/^https?:/.test(image) ? image : ''}" />
         <button type="button" class="btn ghost small" data-clear-photo ${image ? '' : 'hidden'}>Remove</button>
       </div>
 
@@ -88,7 +88,7 @@ export default function editor(el, [id], query) {
 
       <label class="field">
         <span>Source link</span>
-        <input class="input" name="sourceUrl" type="url" placeholder="https://" value="${r.sourceUrl}" />
+        <input class="input" name="sourceUrl" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://" value="${r.sourceUrl}" />
       </label>
 
       <button class="btn primary block" type="submit">${isNew ? 'Save recipe' : 'Save changes'}</button>
@@ -164,7 +164,10 @@ export default function editor(el, [id], query) {
     const key = store.get().settings.spoonacularKey;
     const sh = sheet(String(html`
       <p class="muted small">Works with most recipe websites – no API key needed. If a site won’t import, copy its text and use <b>Paste text</b> instead.</p>
-      <input class="input" type="url" inputmode="url" data-url placeholder="https://www.example.com/best-brownies" value="${prefill}" autofocus />
+      <div class="input-paste">
+        <input class="input" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" data-url placeholder="https://www.example.com/best-brownies" value="${prefill}" />
+        <button type="button" class="btn small primary" data-paste-url>📋 Paste</button>
+      </div>
       <div class="notice mt-s" data-fail hidden>
         <p data-fail-msg></p>
         <div class="row gap-s wrap">
@@ -196,7 +199,25 @@ export default function editor(el, [id], query) {
       }
     };
     go.addEventListener('click', run);
-    sh.el.querySelector('[data-url]').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); run(); } });
+    const field = sh.el.querySelector('[data-url]');
+    field.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); run(); } });
+    // Pasting a link (long-press → Paste) starts the import straight away
+    field.addEventListener('paste', () => setTimeout(() => {
+      const link = normalizeUrl(field.value);
+      if (link && !go.disabled) { field.value = link; run(); }
+    }, 0));
+    // One-tap Paste button (iOS shows its own small "Paste" bubble to confirm)
+    const pasteBtn = sh.el.querySelector('[data-paste-url]');
+    if (!navigator.clipboard || !navigator.clipboard.readText) pasteBtn.hidden = true;
+    pasteBtn.addEventListener('click', async () => {
+      let text = '';
+      try { text = await navigator.clipboard.readText(); }
+      catch (e) { field.focus(); toast('Tap the box, then hold and choose Paste'); return; }
+      const link = normalizeUrl(text);
+      if (!link) { toast('There’s no link on your clipboard – copy the recipe page’s address first'); return; }
+      field.value = link;
+      run();
+    });
     if (autostart && prefill) run();
   };
 

@@ -100,8 +100,15 @@ export function sheet(content, { title = '', className = '' } = {}) {
     });
   });
 
+  // Focus only once the sheet has finished sliding up: focusing a field while it's
+  // still moving breaks the caret and the long-press Paste menu on iOS.
   const focusable = panel.querySelector('[autofocus]');
-  if (focusable) setTimeout(() => focusable.focus(), 280);
+  if (focusable) {
+    let focused = false;
+    const focusNow = () => { if (!focused && !closed) { focused = true; focusable.focus({ preventScroll: true }); } };
+    panel.addEventListener('transitionend', e => { if (e.target === panel && e.propertyName === 'transform') focusNow(); });
+    setTimeout(focusNow, 450); // fallback if no transition ran (e.g. reduced motion)
+  }
   return { el: panel, close };
 }
 
