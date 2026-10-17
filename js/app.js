@@ -91,6 +91,13 @@ function registerSW() {
 (async function boot() {
   await store.load();
   applyTheme(store.get().settings.theme);
+  // Opened from the Android share sheet (manifest share_target): ?title=&text=&url=
+  const sp = new URLSearchParams(location.search);
+  if (sp.has('url') || sp.has('text')) {
+    const shared = [sp.get('title'), sp.get('text'), sp.get('url')].filter(Boolean).join('\n');
+    try { sessionStorage.setItem('foodie-shared', shared); } catch (e) { /* ignore */ }
+    history.replaceState(null, '', location.pathname + '#/edit/new?mode=shared');
+  }
   updateBadge();
   store.subscribe(updateBadge);
   window.addEventListener('hashchange', route);

@@ -2,7 +2,7 @@ import * as store from '../store.js';
 import { html, on, toast, confirmSheet, downloadFile, sheet } from '../ui.js';
 import { applyTheme, install } from '../platform.js';
 
-export const APP_VERSION = '2.0.1';
+export const APP_VERSION = '2.1.0';
 
 export default function settings(el) {
   const draw = async () => {
@@ -61,9 +61,10 @@ export default function settings(el) {
       <section class="section">
         <h2 class="label">Import from links</h2>
         <div class="card form-card">
-          <label class="field"><span>Spoonacular API key <small class="muted">optional · free at spoonacular.com/food-api</small></span>
-            <input class="input" data-set="spoonacularKey" value="${st.spoonacularKey}" placeholder="Paste your key" autocomplete="off" spellcheck="false" /></label>
-          <p class="muted small">Stored only on this device. Without a key you can still paste recipe text or use Discover.</p>
+          <p class="small">Links import without any key. Most recipe sites work straight away.</p>
+          <label class="field"><span>Spoonacular API key <small class="muted">optional backup for tricky sites</small></span>
+            <input class="input" data-set="spoonacularKey" value="${st.spoonacularKey}" placeholder="Leave blank if you don’t have one" autocomplete="off" spellcheck="false" /></label>
+          <p class="muted small">Stored only on this device. Only used when a site can’t be read directly.</p>
         </div>
       </section>
 

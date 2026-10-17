@@ -7,7 +7,8 @@ Foodie is plain HTML, CSS and JavaScript. There's no server, no build step and n
 ## Features
 
 **Recipes**
-- Add recipes by typing, **pasting text** from anywhere (title, ingredients and steps are found for you), or importing from a link (optional Spoonacular key)
+- Add recipes by typing, **pasting text** from anywhere (title, ingredients and steps are found for you), or **importing from a link**, with no API key needed
+- On Android, **share** a recipe page from your browser straight to Foodie
 - Photos from your camera or gallery, shrunk automatically so they don't fill your storage
 - Categories, tags, prep/cook time, notes, source link, ★ ratings and favourites
 - Search across titles, ingredients and tags; filter by category, tag or favourite; sort by newest, A–Z, rating, quickest or most cooked
@@ -39,6 +40,12 @@ Foodie is plain HTML, CSS and JavaScript. There's no server, no build step and n
 - Today screen with today's meals, a "what should I cook?" random pick, favourites and stats
 - Light and dark themes (or follow the phone's setting)
 - Works offline, installs to the home screen, updates itself
+
+### How link import works
+
+Most recipe sites include the recipe as structured data (schema.org `Recipe`) inside the page, and Foodie reads that. Browsers won't let a web app load another site directly, so Foodie fetches the page through free public readers ([r.jina.ai](https://jina.ai/reader) and [allorigins](https://allorigins.win)). That means the link you import passes through those services.
+
+Some large sites block readers like these (at the time of writing: Allrecipes, Serious Eats, Simply Recipes, Bon Appétit, taste.com.au). For those, Foodie offers to open the page so you can copy the recipe and paste it in. If you add a Spoonacular key in Settings, Foodie tries it as a backup first.
 
 ## Install on your phone
 

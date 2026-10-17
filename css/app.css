@@ -101,6 +101,7 @@ body[data-route="full"] .tabbar { display: none; }
 .small { font-size: .875rem; }
 .mt { margin-top: 16px; }
 .mt-s { margin-top: 10px; }
+.mb-s { margin-bottom: 10px; }
 .pad-top { padding-top: 15vh; }
 .label, .field-label { font-weight: 800; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
 .danger-text { color: var(--danger) !important; }

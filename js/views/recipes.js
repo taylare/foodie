@@ -116,7 +116,7 @@ export function addSheet() {
     <div class="stack">
       <a class="option" href="#/edit/new"><span class="big-emoji">✍️</span><span><b>Write it myself</b><small>Start with a blank recipe</small></span></a>
       <a class="option" href="#/edit/new?mode=paste"><span class="big-emoji">📋</span><span><b>Paste a recipe</b><small>Copy text from a website or note and we’ll sort it out</small></span></a>
-      <a class="option" href="#/edit/new?mode=url"><span class="big-emoji">🔗</span><span><b>Import from a link</b><small>Uses your Spoonacular key (Settings)</small></span></a>
+      <a class="option" href="#/edit/new?mode=url"><span class="big-emoji">🔗</span><span><b>Import from a link</b><small>Works with most recipe websites – no key needed</small></span></a>
       <a class="option" href="#/discover"><span class="big-emoji">✨</span><span><b>Find something new</b><small>Browse thousands of free recipes</small></span></a>
     </div>`), { title: 'Add a recipe' });
 }

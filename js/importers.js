@@ -5,13 +5,19 @@ import { parseIngredient } from './ingredients.js';
 // Splits copied text into title / ingredients / steps using headings when present,
 // or a best guess when not.
 export function parseRecipeText(text) {
-  const lines = String(text).replace(/\r/g, '').split('\n').map(l => l.trim());
+  const lines = String(text).replace(/\r/g, '').split('\n').map(l => l.trim()
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')          // markdown images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')       // markdown links -> text
+    .trim());
   const nonEmpty = lines.filter(Boolean);
   if (!nonEmpty.length) return null;
 
-  const isIngHead = l => /^(ingredients?|you(?:'|’)?ll need|what you need)\s*:?$/i.test(l);
-  const isStepHead = l => /^(method|directions?|instructions?|steps?|preparation|how to make( it)?)\s*:?$/i.test(l);
-  const isNoteHead = l => /^(notes?|tips?)\s*:?$/i.test(l);
+  // Headings may be "Ingredients", "## Ingredients", "**Method:**" etc.
+  const plain = l => l.replace(/^#+\s*/, '').replace(/\*\*|__/g, '').replace(/:$/, '').trim();
+  const isIngHead = l => /^(ingredients?|you(?:'|’)?ll need|what you need)$/i.test(plain(l));
+  const isStepHead = l => /^(method|directions?|instructions?|steps?|preparation|how to make( it)?)$/i.test(plain(l));
+  const isNoteHead = l => /^(notes?|tips?|recipe notes?)$/i.test(plain(l));
+  const isOtherHead = l => /^#{1,2}\s/.test(l); // "###" sub-headings (e.g. "For the sauce") don't end it
   const meta = { servings: 0, prepMin: 0, cookMin: 0 };
 
   let title = '';
@@ -23,6 +29,9 @@ export function parseRecipeText(text) {
     if (isIngHead(l)) { section = 'ing'; continue; }
     if (isStepHead(l)) { section = 'steps'; continue; }
     if (isNoteHead(l)) { section = 'notes'; continue; }
+    // Any other big heading after the recipe started (e.g. "## Comments") ends it
+    if (isOtherHead(l) && (ingredients.length || steps.length)) { section = 'skip'; continue; }
+    if (section === 'skip') continue;
 
     const serv = l.match(/(?:serves|servings|yield|makes)\s*:?\s*(\d+)/i);
     if (serv && l.length < 40) { meta.servings = +serv[1]; continue; }
@@ -123,9 +132,210 @@ function fromMealDB(m) {
   };
 }
 
-// ---------- Spoonacular URL extract (needs the user's own API key) ----------
-export async function importFromUrl(url, apiKey) {
-  if (!apiKey) throw new Error('Add a Spoonacular API key in Settings to import from links.');
+// ---------- import from a link (no API key needed) ----------
+// Browsers can't read other sites directly (CORS), so we try the site itself and
+// free public readers at the same time and use whichever finds a recipe first.
+// Most recipe sites embed schema.org Recipe data (JSON-LD), which is what we parse.
+const SOURCES = [
+  { url: u => u },
+  { url: u => 'https://r.jina.ai/' + u, headers: { 'X-Return-Format': 'html' } },
+  { url: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) }
+];
+
+async function fetchText(url, headers, ms = 10000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.text();
+  } finally { clearTimeout(timer); }
+}
+
+async function readRecipePage(url) {
+  try {
+    return await Promise.any(SOURCES.map(async s => {
+      const r = parseRecipeHtml(await fetchText(s.url(url), s.headers), url);
+      if (!r) throw new Error('no recipe');
+      return r;
+    }));
+  } catch (e) { /* none found a structured recipe */ }
+
+  // Last resort: read the page as plain text and pick out the recipe
+  try {
+    const md = await fetchText('https://r.jina.ai/' + url, { 'X-Return-Format': 'markdown' }, 12000);
+    const title = (md.match(/^Title:\s*(.+)$/m) || [])[1];
+    const body = md.split(/^Markdown Content:\s*$/m).pop();
+    const r = parseRecipeText(body);
+    if (r && r.ingredients.length >= 2 && r.steps.length >= 1) return { ...r, title: title ? title.trim() : r.title, sourceUrl: url };
+  } catch (e) { /* fall through */ }
+  return null;
+}
+
+export function normalizeUrl(input) {
+  const m = String(input || '').match(/https?:\/\/[^\s<>"']+/i);
+  if (m) return m[0].replace(/[),.]+$/, '');
+  const t = String(input || '').trim();
+  if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)) return 'https://' + t;
+  return null;
+}
+
+export async function importFromUrl(input, apiKey) {
+  const url = normalizeUrl(input);
+  if (!url) throw new Error('That doesn’t look like a link');
+  if (!navigator.onLine) throw new Error('You’re offline – connect to import from a link.');
+  const r = await readRecipePage(url);
+  if (r) return r;
+  if (apiKey) {
+    try { return await importFromSpoonacular(url, apiKey); } catch (e) { /* fall through */ }
+  }
+  const err = new Error('This site blocks importing. Open the page, copy the recipe, then paste it here.');
+  err.blocked = url;
+  throw err;
+}
+
+// Turn a web page's HTML into a recipe. Tries JSON-LD, then microdata, then page structure.
+export function parseRecipeHtml(html, pageUrl = '') {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const abs = u => { try { return new URL(u, pageUrl || undefined).href; } catch (e) { return u || ''; } };
+
+  // 1) JSON-LD
+  for (const s of doc.querySelectorAll('script[type="application/ld+json"]')) {
+    let data;
+    try { data = JSON.parse(s.textContent.trim().replace(/^﻿/, '')); } catch (e) { continue; }
+    const node = findRecipeNode(data);
+    if (node) {
+      const r = fromSchema(node, abs);
+      if (r.ingredients.length || r.steps.length) return { ...r, sourceUrl: pageUrl };
+    }
+  }
+
+  // 2) Microdata (itemprop)
+  const md = doc.querySelector('[itemtype*="schema.org/Recipe" i]');
+  if (md) {
+    const prop = p => [...md.querySelectorAll(`[itemprop="${p}"]`)];
+    const val = el => el.getAttribute('content') || el.getAttribute('src') || el.textContent;
+    const node = {
+      name: prop('name')[0] && val(prop('name')[0]),
+      image: prop('image')[0] && val(prop('image')[0]),
+      recipeYield: prop('recipeYield')[0] && val(prop('recipeYield')[0]),
+      prepTime: prop('prepTime')[0] && val(prop('prepTime')[0]),
+      cookTime: prop('cookTime')[0] && val(prop('cookTime')[0]),
+      totalTime: prop('totalTime')[0] && val(prop('totalTime')[0]),
+      recipeIngredient: (prop('recipeIngredient').length ? prop('recipeIngredient') : prop('ingredients')).map(val),
+      recipeInstructions: prop('recipeInstructions').map(val),
+      recipeCategory: prop('recipeCategory')[0] && val(prop('recipeCategory')[0])
+    };
+    const r = fromSchema(node, abs);
+    if (r.ingredients.length) return { ...r, sourceUrl: pageUrl };
+  }
+
+  // 3) Page structure: lists inside elements named like "ingredients" / "instructions"
+  const ING = /ingredient/i, STEP = /instruction|direction|method|steps|preparation/i;
+  // Take the matching container with the most list items (so ingredient groups stay together)
+  const pick = (re, not) => {
+    let best = [];
+    for (const box of doc.querySelectorAll('[class],[id]')) {
+      const name = (typeof box.className === 'string' ? box.className : '') + ' ' + box.id;
+      if (!re.test(name) || not.test(name)) continue;
+      const items = [...box.querySelectorAll('li')].map(li => clean(li.textContent)).filter(t => t && t.length < 400);
+      if (items.length > best.length) best = items;
+    }
+    return best.length >= 2 ? best : [];
+  };
+  const ingredients = pick(ING, STEP);
+  const steps = pick(STEP, ING);
+  // Needs both lists, so random pages (404s, menus) aren't mistaken for recipes
+  if (ingredients.length && steps.length) {
+    const title = clean(doc.querySelector('meta[property="og:title"]')?.content || doc.querySelector('h1')?.textContent || doc.title);
+    const image = doc.querySelector('meta[property="og:image"]')?.content;
+    return { title: title || 'Imported recipe', ingredients: dedupe(ingredients), steps: dedupe(steps).map(cleanStep), servings: 0, image: image ? abs(image) : '', sourceUrl: pageUrl };
+  }
+  return null;
+}
+
+function findRecipeNode(data) {
+  const isRecipe = n => n && typeof n === 'object' && [].concat(n['@type'] || []).some(t => /recipe$/i.test(String(t)));
+  const stack = [data];
+  while (stack.length) {
+    const n = stack.shift();
+    if (!n || typeof n !== 'object') continue;
+    if (Array.isArray(n)) { stack.push(...n); continue; }
+    if (isRecipe(n)) return n;
+    if (n['@graph']) stack.push(n['@graph']);
+    if (n.mainEntity) stack.push(n.mainEntity);
+  }
+  return null;
+}
+
+// "PT1H30M" -> 90
+function isoMinutes(v) {
+  if (!v) return 0;
+  const m = String(v).trim().match(/^P(?:(\d+)D)?T?(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?/i);
+  if (!m || m[0].length <= 2) { const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+  return Math.round((+m[1] || 0) * 1440 + (+m[2] || 0) * 60 + (+m[3] || 0));
+}
+
+const decoder = typeof document !== 'undefined' ? document.createElement('textarea') : null;
+function clean(s) {
+  if (s == null) return '';
+  let t = String(s).replace(/<[^>]+>/g, ' ');
+  if (decoder) { decoder.innerHTML = t; t = decoder.value; }
+  return t.replace(/\s+/g, ' ').trim();
+}
+const dedupe = arr => [...new Set(arr)];
+
+function fromSchema(n, abs) {
+  const text = v => Array.isArray(v) ? text(v[0]) : (v && typeof v === 'object' ? (v.text || v.name || v['@value'] || '') : v);
+  let image = n.image;
+  if (Array.isArray(image)) image = image[0];
+  if (image && typeof image === 'object') image = image.url || image.contentUrl || '';
+
+  const steps = [];
+  const walk = ins => {
+    if (!ins) return;
+    if (typeof ins === 'string') {
+      // keep line breaks so one block of text still becomes separate steps
+      const lines = ins.replace(/<\/(p|li)>|<br\s*\/?>/gi, '\n').split(/\n+/).map(clean).filter(Boolean);
+      splitSteps(lines.join('\n')).forEach(s => steps.push(s));
+      return;
+    }
+    if (Array.isArray(ins)) { ins.forEach(walk); return; }
+    const type = [].concat(ins['@type'] || []).join(' ');
+    if (/HowToSection/i.test(type) || ins.itemListElement) {
+      walk(ins.itemListElement);
+      return;
+    }
+    const t = clean(ins.text || ins.name || ins.description || '');
+    if (t) steps.push(cleanStep(t));
+  };
+  walk(n.recipeInstructions);
+
+  const ingredients = [].concat(n.recipeIngredient || n.ingredients || []).map(clean).filter(Boolean);
+  const yieldStr = String(text(n.recipeYield) || '');
+  const servings = parseInt((yieldStr.match(/\d+/) || [])[0], 10) || 0;
+  let prepMin = isoMinutes(n.prepTime), cookMin = isoMinutes(n.cookTime);
+  const total = isoMinutes(n.totalTime);
+  if (!prepMin && !cookMin && total) cookMin = total;
+  const kw = Array.isArray(n.keywords) ? n.keywords : String(n.keywords || '').split(',');
+  const cuisine = [].concat(n.recipeCuisine || []);
+  const cats = [].concat(n.recipeCategory || []).map(String);
+
+  return {
+    title: clean(text(n.name)) || 'Imported recipe',
+    image: image ? abs(String(image)) : '',
+    ingredients,
+    steps: steps.filter(Boolean),
+    servings,
+    prepMin, cookMin,
+    tags: [...cuisine, ...kw].map(t => clean(t).toLowerCase()).filter(t => t && t.length < 24).slice(0, 6),
+    category: cats.length ? guessCategory(cats) : '',
+    notes: clean(text(n.description)).slice(0, 500)
+  };
+}
+
+// ---------- Spoonacular URL extract (optional fallback, needs the user's own API key) ----------
+async function importFromSpoonacular(url, apiKey) {
   const d = await getJSON(`https://api.spoonacular.com/recipes/extract?url=${encodeURIComponent(url)}&apiKey=${encodeURIComponent(apiKey)}`);
   if (!d || !d.title) throw new Error('Couldn’t find a recipe on that page.');
   let steps = [];
