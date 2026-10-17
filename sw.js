@@ -1,6 +1,6 @@
 // Foodie service worker – makes the app installable and fully offline.
 // Bump VERSION whenever you change any app file so phones pick up the update.
-const VERSION = 'foodie-v2.0.0';
+const VERSION = 'foodie-v2.0.1';
 const SHELL = [
   './',
   './index.html',

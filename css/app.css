@@ -362,6 +362,9 @@ span.star { font-size: 1rem; padding: 0; }
 .stepper.small button { width: 38px; height: 38px; }
 .stepper.small output { font-size: .9rem; padding: 0 4px; }
 
+.ing-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -2px 0 4px; }
+.copy-btn { min-height: 34px; padding: 4px 12px; font-size: .82rem; box-shadow: none; white-space: nowrap; }
+.stepper output { white-space: nowrap; }
 .ing-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
 .ing-list.compact li { padding: 4px 0; border-bottom: 1px dashed var(--soft-line); }
 .ing-head { font-family: var(--display); font-weight: 600; margin-top: 12px; color: var(--pink-strong); }

@@ -199,11 +199,30 @@ export function downloadFile(name, text, type = 'application/json') {
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
 
+// Copy to clipboard, with a fallback for older iOS / non-secure pages
+export async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { /* ignore */ }
+    ta.remove();
+    return ok;
+  }
+}
+
 export async function shareText(title, text) {
   if (navigator.share) {
     try { await navigator.share({ title, text }); return true; }
     catch (e) { if (e.name === 'AbortError') return true; }
   }
-  try { await navigator.clipboard.writeText(text); toast('Copied to clipboard'); return true; }
-  catch (e) { toast('Sharing isn’t available here'); return false; }
+  if (await copyText(text)) { toast('Copied to clipboard'); return true; }
+  toast('Sharing isn’t available here');
+  return false;
 }

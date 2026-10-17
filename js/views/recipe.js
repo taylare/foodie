@@ -1,5 +1,5 @@
 import * as store from '../store.js';
-import { html, on, thumb, stars, sheet, toast, confirmSheet, minutesLabel, shareText, downloadFile, haptic } from '../ui.js';
+import { html, on, thumb, stars, sheet, toast, confirmSheet, minutesLabel, shareText, copyText, downloadFile, haptic } from '../ui.js';
 import { scaleLine } from '../ingredients.js';
 import { planRecipe } from '../pickers.js';
 import { addLines, recipeLines } from '../shoplist.js';
@@ -63,7 +63,10 @@ export default function recipe(el, [id], query) {
               <button type="button" data-serv="1" aria-label="More servings">+</button>
             </div>
           </div>
-          ${factor !== 1 ? html`<p class="muted small">Scaled from ${r.servings} servings. <button class="link-btn" data-reset-serv>Reset</button></p>` : ''}
+          <div class="ing-tools">
+            <span class="muted small">${factor !== 1 ? html`Scaled from ${r.servings} servings · <button class="link-btn" data-reset-serv>Reset</button>` : ''}</span>
+            <button class="btn small ghost copy-btn" data-copy-ings>📋 Copy list</button>
+          </div>
           <ul class="ing-list">
             ${r.ingredients.map((line, i) => {
               const isHead = /:$/.test(line);
@@ -105,6 +108,12 @@ export default function recipe(el, [id], query) {
     const i = Number(c.dataset.ing);
     c.checked ? checked.add(i) : checked.delete(i);
     c.closest('.check').classList.toggle('done', c.checked);
+  });
+  on(el, 'click', '[data-copy-ings]', async () => {
+    const factor = servings / (r.servings || 1);
+    const text = r.ingredients.map(l => /:$/.test(l) ? '\n' + l : '• ' + scaleLine(l, factor).text).join('\n').trim();
+    if (await copyText(text)) { haptic(); toast(`Copied ${r.ingredients.filter(l => !/:$/.test(l)).length} ingredients`); }
+    else toast('Couldn’t copy – try Share instead');
   });
   on(el, 'click', '[data-plan]', () => planRecipe(r));
   on(el, 'click', '[data-shop]', () => {
