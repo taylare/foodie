@@ -1,6 +1,6 @@
 import * as store from '../store.js';
 import { CATEGORIES } from '../store.js';
-import { html, on, toast, resizeImage, confirmSheet, sheet } from '../ui.js';
+import { html, on, toast, resizeImage, confirmSheet } from '../ui.js';
 import { parseRecipeText, importFromUrl, normalizeUrl } from '../importers.js';
 
 export default function editor(el, [id], query) {
@@ -23,10 +23,38 @@ export default function editor(el, [id], query) {
     </header>
 
     ${isNew ? html`
-      <div class="import-bar">
-        <button class="chip" data-import="paste">📋 Paste text</button>
-        <button class="chip" data-import="url">🔗 From link</button>
-      </div>` : ''}
+      <section class="card import-card" data-import-card>
+        <div class="seg small" role="tablist">
+          <button type="button" class="on" data-tab="url">🔗 From a link</button>
+          <button type="button" data-tab="paste">📋 Paste text</button>
+        </div>
+
+        <div class="import-pane" data-pane="url">
+          <p class="muted small">Copy a recipe page’s address, then paste it here. No API key needed.</p>
+          <div class="input-paste">
+            <input class="input" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" data-url placeholder="https://www.example.com/best-brownies" />
+            <button type="button" class="btn small primary" data-paste-url>📋 Paste</button>
+          </div>
+          <div class="notice mt-s" data-fail hidden>
+            <p data-fail-msg></p>
+            <div class="row gap-s wrap">
+              <a class="btn small ghost" data-open-page target="_blank" rel="noopener">↗ Open the page</a>
+              <button type="button" class="btn small primary" data-tab="paste">📋 Paste text instead</button>
+            </div>
+          </div>
+          <button type="button" class="btn primary block mt-s" data-go-url>Import recipe</button>
+        </div>
+
+        <div class="import-pane" data-pane="paste" hidden>
+          <p class="muted small">Copy a recipe’s text from a website, message or note and paste it here. We’ll sort out the title, ingredients and steps.</p>
+          <textarea class="input" rows="7" data-text placeholder="Paste the whole recipe…"></textarea>
+          <div class="row gap-s mt-s">
+            <button type="button" class="btn small ghost" data-clip>📋 Paste</button>
+            <button type="button" class="btn primary grow" data-go-text>Fill in the recipe</button>
+          </div>
+        </div>
+      </section>
+      <p class="or-divider"><span>or type it in</span></p>` : ''}
 
     <form class="form" data-form autocomplete="off">
       <label class="photo-pick" data-photo>
@@ -133,104 +161,105 @@ export default function editor(el, [id], query) {
     dirty = true;
   };
 
-  // A pasted "recipe" that's really just a link
-  const onlyLink = t => { const s = t.trim(); return !/\n/.test(s) && s.length < 600 && normalizeUrl(s) && s.split(/\s+/).length <= 8; };
+  // ---------- import card (inline on the page, not in a pop-up: iOS won't paste
+  // into fields inside the floating sheets) ----------
+  if (isNew) {
+    const card = el.querySelector('[data-import-card]');
+    const urlField = card.querySelector('[data-url]');
+    const textBox = card.querySelector('[data-text]');
+    const goUrl = card.querySelector('[data-go-url]');
+    const fail = card.querySelector('[data-fail]');
+    const hasReadText = !!(navigator.clipboard && navigator.clipboard.readText);
 
-  const openPaste = (prefill = '') => {
-    const sh = sheet(String(html`
-      <p class="muted small">Copy a recipe from a website, message or note and paste it here – or just paste a link to a recipe page. No account or API key needed.</p>
-      <div class="row gap-s mb-s"><button type="button" class="btn small ghost" data-clip>📋 Paste from clipboard</button></div>
-      <textarea class="input" rows="10" data-text autofocus placeholder="Paste the whole recipe or a link…">${prefill}</textarea>
-      <button class="btn primary block mt" data-go>Fill in the recipe</button>`), { title: 'Paste a recipe' });
-    const ta = sh.el.querySelector('[data-text]');
-    const clip = sh.el.querySelector('[data-clip]');
-    if (!navigator.clipboard || !navigator.clipboard.readText) clip.hidden = true;
-    clip.addEventListener('click', async () => {
-      try { ta.value = await navigator.clipboard.readText(); }
-      catch (e) { toast('Long-press the box and choose Paste'); ta.focus(); }
-    });
-    sh.el.querySelector('[data-go]').addEventListener('click', () => {
-      const text = ta.value;
-      if (onlyLink(text)) { sh.close(); setTimeout(() => openUrl(normalizeUrl(text), true), 280); return; }
-      const parsed = parseRecipeText(text);
-      if (!parsed) return toast('Paste some text first');
-      fill(parsed);
-      sh.close();
-      toast(`Found ${parsed.ingredients.length} ingredients and ${parsed.steps.length} steps – check them over`);
-    });
-  };
+    const showTab = name => {
+      card.querySelectorAll('.seg [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+      card.querySelectorAll('[data-pane]').forEach(p => { p.hidden = p.dataset.pane !== name; });
+    };
+    on(card, 'click', '[data-tab]', (e, b) => showTab(b.dataset.tab));
 
-  const openUrl = (prefill = '', autostart = false) => {
-    const key = store.get().settings.spoonacularKey;
-    const sh = sheet(String(html`
-      <p class="muted small">Works with most recipe websites – no API key needed. If a site won’t import, copy its text and use <b>Paste text</b> instead.</p>
-      <div class="input-paste">
-        <input class="input" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" data-url placeholder="https://www.example.com/best-brownies" value="${prefill}" />
-        <button type="button" class="btn small primary" data-paste-url>📋 Paste</button>
-      </div>
-      <div class="notice mt-s" data-fail hidden>
-        <p data-fail-msg></p>
-        <div class="row gap-s wrap">
-          <a class="btn small ghost" data-open-page target="_blank" rel="noopener">↗ Open the page</a>
-          <button type="button" class="btn small primary" data-to-paste>📋 Paste text instead</button>
-        </div>
-      </div>
-      <button class="btn primary block mt" data-go>Import</button>`), { title: 'Import from a link' });
-    const go = sh.el.querySelector('[data-go]');
-    const fail = sh.el.querySelector('[data-fail]');
-    sh.el.querySelector('[data-to-paste]').addEventListener('click', () => { sh.close(); setTimeout(() => openPaste(), 280); });
-    const run = async () => {
-      const url = sh.el.querySelector('[data-url]').value.trim();
-      if (!url) return;
+    // A pasted "recipe" that's really just a link
+    const onlyLink = t => { const s = t.trim(); return !/\n/.test(s) && s.length < 600 && normalizeUrl(s) && s.split(/\s+/).length <= 8; };
+
+    const done = msg => {
+      toast(msg);
+      // Show the filled-in form
+      requestAnimationFrame(() => form.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    };
+
+    // Read the clipboard. iOS sometimes never answers, so give up after a few seconds.
+    const readClipboard = () => Promise.race([
+      navigator.clipboard.readText(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+    ]);
+    const pasteHelp = field => {
+      field.focus();
+      toast('Tap the box, hold your finger down, then tap Paste', { duration: 5000 });
+    };
+
+    const runUrl = async () => {
+      const url = urlField.value.trim();
+      if (!url) { urlField.focus(); return; }
       fail.hidden = true;
-      go.disabled = true; go.textContent = 'Reading the recipe…';
+      goUrl.disabled = true; goUrl.textContent = 'Reading the recipe…';
       try {
-        const r = await importFromUrl(url, key);
-        fill(r);
-        sh.close();
-        toast(`Imported ${r.ingredients.length} ingredients and ${r.steps.length} steps – check them over and save`);
+        const rec = await importFromUrl(url, store.get().settings.spoonacularKey);
+        fill(rec);
+        done(`Imported ${rec.ingredients.length} ingredients and ${rec.steps.length} steps – check them over and save`);
       } catch (err) {
-        sh.el.querySelector('[data-fail-msg]').textContent = err.message || 'Import failed';
-        const page = sh.el.querySelector('[data-open-page]');
+        card.querySelector('[data-fail-msg]').textContent = err.message || 'Import failed';
+        const page = card.querySelector('[data-open-page]');
         page.hidden = !err.blocked;
         if (err.blocked) page.href = err.blocked;
         fail.hidden = false;
-        go.disabled = false; go.textContent = 'Try again';
+      } finally {
+        goUrl.disabled = false; goUrl.textContent = 'Import recipe';
       }
     };
-    go.addEventListener('click', run);
-    const field = sh.el.querySelector('[data-url]');
-    field.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); run(); } });
-    // Pasting a link (long-press → Paste) starts the import straight away
-    field.addEventListener('paste', () => setTimeout(() => {
-      const link = normalizeUrl(field.value);
-      if (link && !go.disabled) { field.value = link; run(); }
-    }, 0));
-    // One-tap Paste button (iOS shows its own small "Paste" bubble to confirm)
-    const pasteBtn = sh.el.querySelector('[data-paste-url]');
-    if (!navigator.clipboard || !navigator.clipboard.readText) pasteBtn.hidden = true;
-    pasteBtn.addEventListener('click', async () => {
-      let text = '';
-      try { text = await navigator.clipboard.readText(); }
-      catch (e) { field.focus(); toast('Tap the box, then hold and choose Paste'); return; }
-      const link = normalizeUrl(text);
-      if (!link) { toast('There’s no link on your clipboard – copy the recipe page’s address first'); return; }
-      field.value = link;
-      run();
-    });
-    if (autostart && prefill) run();
-  };
 
-  on(el, 'click', '[data-import]', (e, b) => b.dataset.import === 'paste' ? openPaste() : openUrl());
-  if (query.get('mode') === 'paste') setTimeout(() => openPaste(), 50);
-  if (query.get('mode') === 'url') setTimeout(() => openUrl(), 50);
-  if (query.get('mode') === 'shared') {
-    // Something was shared to Foodie from another app (Android share sheet)
-    let shared = '';
-    try { shared = sessionStorage.getItem('foodie-shared') || ''; sessionStorage.removeItem('foodie-shared'); } catch (e) { /* ignore */ }
-    const link = normalizeUrl(shared);
-    // Browsers usually share "title + link"; a long text with a link in it is a pasted recipe
-    setTimeout(() => (link && shared.length < 400 ? openUrl(link, true) : openPaste(shared)), 50);
+    const runText = () => {
+      const text = textBox.value;
+      if (onlyLink(text)) { urlField.value = normalizeUrl(text); textBox.value = ''; showTab('url'); runUrl(); return; }
+      const parsed = parseRecipeText(text);
+      if (!parsed) { textBox.focus(); toast('Paste some text first'); return; }
+      fill(parsed);
+      done(`Found ${parsed.ingredients.length} ingredients and ${parsed.steps.length} steps – check them over`);
+    };
+
+    goUrl.addEventListener('click', runUrl);
+    urlField.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runUrl(); } });
+    // Pasting a link the normal way (hold → Paste) starts the import straight away
+    urlField.addEventListener('paste', () => setTimeout(() => {
+      const link = normalizeUrl(urlField.value);
+      if (link && !goUrl.disabled) { urlField.value = link; runUrl(); }
+    }, 0));
+    card.querySelector('[data-go-text]').addEventListener('click', runText);
+
+    const pasteUrlBtn = card.querySelector('[data-paste-url]');
+    const clipBtn = card.querySelector('[data-clip]');
+    if (!hasReadText) { pasteUrlBtn.hidden = true; clipBtn.hidden = true; }
+    pasteUrlBtn.addEventListener('click', async () => {
+      let text;
+      try { text = await readClipboard(); } catch (e) { pasteHelp(urlField); return; }
+      const link = normalizeUrl(text);
+      if (!link) { toast('There’s no link on your clipboard – copy the recipe page’s address first', { duration: 5000 }); return; }
+      urlField.value = link;
+      runUrl();
+    });
+    clipBtn.addEventListener('click', async () => {
+      try { textBox.value = await readClipboard(); } catch (e) { pasteHelp(textBox); }
+    });
+
+    const mode = query.get('mode');
+    if (mode === 'paste') showTab('paste');
+    if (mode === 'shared') {
+      // Something was shared to Foodie from another app (Android share sheet)
+      let shared = '';
+      try { shared = sessionStorage.getItem('foodie-shared') || ''; sessionStorage.removeItem('foodie-shared'); } catch (e) { /* ignore */ }
+      const link = normalizeUrl(shared);
+      // Browsers usually share "title + link"; a long text with a link in it is a pasted recipe
+      if (link && shared.length < 400) { urlField.value = link; runUrl(); }
+      else { textBox.value = shared; showTab('paste'); }
+    }
   }
 
   const save = () => {
